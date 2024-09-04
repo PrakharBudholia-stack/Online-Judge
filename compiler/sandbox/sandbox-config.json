@@ -1,0 +1,17 @@
+{
+    "languages": {
+      "python": {
+        "image": "python:3.9",
+        "command": "python"
+      },
+      "javascript": {
+        "image": "node:14",
+        "command": "node"
+      },
+      "cpp": {
+        "image": "gcc:latest",
+        "command": "g++ -o main main.cpp && ./main"
+      }
+    }
+  }
+  
