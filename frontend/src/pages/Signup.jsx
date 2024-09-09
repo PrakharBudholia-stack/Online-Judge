@@ -1,8 +1,9 @@
-// src/pages/Login.jsx
+// src/pages/Signup.jsx
 import React, { useState } from 'react';
 import API from '../utils/api';
 
-function Login() {
+function Signup() {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -11,23 +12,28 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await API.post('/auth/login', { email, password });
-      const { token } = response.data;
+      const response = await API.post('/auth/signup', {
+        username,
+        email,
+        password,
+      });
 
-      // Save the token in localStorage
-      localStorage.setItem('token', token);
-
-      // Redirect or update UI on successful login
-      alert('Login successful');
+      alert('Signup successful');
     } catch (err) {
-      setError('Invalid credentials');
+      setError('Error creating account');
     }
   };
 
   return (
     <div>
-      <h2>Login</h2>
+      <h2>Signup</h2>
       <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
         <input
           type="email"
           placeholder="Email"
@@ -40,11 +46,11 @@ function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit">Login</button>
+        <button type="submit">Signup</button>
         {error && <p>{error}</p>}
       </form>
     </div>
   );
 }
 
-export default Login;
+export default Signup;
