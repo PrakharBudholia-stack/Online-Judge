@@ -2,51 +2,94 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Register user
 exports.register = async (req, res) => {
     const { username, email, password } = req.body;
-
+    
     try {
+        console.log('Attempting to register user:', email);
         const existingUser = await User.findOne({ email });
-        if (existingUser) return res.status(400).json({ message: 'User already exists' });
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const newUser = new User({
-            username,
-            email,
-            password: hashedPassword,
-        });
-
+        if (existingUser) {
+            console.log('User already exists:', email);
+            return res.status(400).json({ message: 'User already exists' });
+        }
+        
+        const newUser = new User({ username, email, password });
         await newUser.save();
-
+        
+        console.log('User registered successfully:', email);
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
-        res.status(500).json({ error: 'Server error' });
+        console.error('Error in register:', error);
+        res.status(500).json({ error: 'Server error', details: error.message });
     }
 };
 
-// Login user
 exports.login = async (req, res) => {
     const { email, password } = req.body;
-
+    
     try {
+        console.log('Login attempt for email:', email);
+        
         const user = await User.findOne({ email });
-        if (!user) return res.status(400).json({ message: 'Invalid credentials' });
+        if (!user) {
+            console.log('User not found in database for email:', email);
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+        
+        console.log('User found in database:', user.email);
+        console.log('Stored hashed password:', user.password);
+        console.log('Provided password:', password);
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+        let isMatch;
+        try {
+            isMatch = await user.comparePassword(password);
+            console.log('Password comparison result:', isMatch);
+        } catch (error) {
+            console.error('Error during password comparison:', error);
+            return res.status(500).json({ message: 'Error during authentication' });
+        }
 
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-        res.json({ token });
+        if (!isMatch) {
+            console.log('Password does not match for user:', email);
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+        
+        const token = jwt.sign(
+            { userId: user._id, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+        
+        console.log('Login successful for user:', email);
+        res.json({ token, userId: user._id, email: user.email });
     } catch (error) {
-        res.status(500).json({ error: 'Server error' });
+        console.error('Unexpected error during login:', error);
+        res.status(500).json({ error: 'Server error', details: error.message });
     }
 };
 
-// Logout user (if needed)
 exports.logout = (req, res) => {
-    // This could be handled on the client-side or by invalidating the token.
+    // Note: With JWT, logout is typically handled client-side
+    // by removing the token from storage
+    console.log('Logout request received');
     res.status(200).json({ message: 'Logged out successfully' });
 };
+
+exports.getProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId).select('-password');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
+    } catch (error) {
+        console.error('Error in getProfile:', error);
+        res.status(500).json({ error: 'Server error', details: error.message });
+    }
+};
+
+// You might want to add more controller methods here, such as:
+// - updateProfile
+// - changePassword
+// - deleteAccount
+// etc.

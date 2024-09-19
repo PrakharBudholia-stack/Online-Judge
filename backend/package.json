@@ -4,17 +4,21 @@
   "description": "Backend for the online judge system",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "cross-env NODE_ENV=production node server.js",
+    "dev": "cross-env NODE_ENV=development nodemon --watch '**/*.js' --ignore 'node_modules/**/*.js' --exec 'node server.js'"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
+    "dotenv": "^16.4.5",
+    "express": "^5.0.0",
+    "express-validator": "^7.2.0",
     "jsonwebtoken": "^9.0.0",
     "mongodb": "^6.8.0",
     "mongoose": "^7.0.2",
     "nodemon": "^3.1.4"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
   }
 }

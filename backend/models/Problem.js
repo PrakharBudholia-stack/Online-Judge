@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// Define the Problem schema
 const problemSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -11,12 +10,28 @@ const problemSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  inputs: {
-    type: [String],
+  inputFormat: {
+    type: String,
     required: true
   },
-  outputs: {
-    type: [String],
+  outputFormat: {
+    type: String,
+    required: true
+  },
+  constraints: {
+    type: String,
+    required: true
+  },
+  testCases: [{
+    input: String,
+    expectedOutput: String
+}],
+  sampleInput: {
+    type: String,
+    required: true
+  },
+  sampleOutput: {
+    type: String,
     required: true
   },
   difficulty: {
@@ -29,6 +44,5 @@ const problemSchema = new mongoose.Schema({
   }
 });
 
-// Create the Problem model
 const Problem = mongoose.model('Problem', problemSchema);
 module.exports = Problem;

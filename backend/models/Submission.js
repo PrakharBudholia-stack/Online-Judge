@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// Define the Submission schema
 const submissionSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -21,16 +20,22 @@ const submissionSchema = new mongoose.Schema({
     enum: ['javascript', 'python', 'cpp'],
     required: true
   },
+  input: {
+    type: String
+  },
+  output: {
+    type: String
+  },
   status: {
     type: String,
     enum: ['pending', 'accepted', 'rejected'],
     default: 'pending'
   },
-  output: {
-    type: String
+  executionTime: {
+    type: Number
   }
-});
+}, { timestamps: true });
 
-// Create the Submission model
 const Submission = mongoose.model('Submission', submissionSchema);
+
 module.exports = Submission;
