@@ -1,27 +1,34 @@
-const { exec } = require('child_process');
-const path = require('path');
-
-const executeCode = (language, code) => {
+const executeCode = (language, code, input, timeout = 10000) => {
     return new Promise((resolve, reject) => {
-        let executor;
-        switch (language) {
-            case 'javascript':
-                executor = require('./js-executor');
-                break;
-            case 'python':
-                executor = require('./py-executor');
-                break;
-            case 'cpp':
-                executor = require('./cpp-executor');
-                break;
-            default:
-                return reject(new Error('Unsupported language'));
-        }
-
-        executor.execute(code)
-            .then(result => resolve(result))
-            .catch(error => reject(error));
+      let executor;
+      switch (language) {
+        case 'javascript':
+          executor = require('./js-executor');
+          break;
+        case 'python':
+          executor = require('./py-executor');
+          break;
+        case 'cpp':
+          executor = require('./cpp-executor');
+          break;
+        default:
+          return reject(new Error('Unsupported language'));
+      }
+  
+      const timeoutId = setTimeout(() => {
+        reject(new Error('Execution timed out'));
+      }, timeout);
+  
+      executor.execute(code, input)
+        .then(result => {
+          clearTimeout(timeoutId);
+          resolve(result);
+        })
+        .catch(error => {
+          clearTimeout(timeoutId);
+          reject(error);
+        });
     });
-};
-
-module.exports = { executeCode };
+  };
+  
+  module.exports = { executeCode };

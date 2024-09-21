@@ -1,43 +1,79 @@
 const express = require('express');
 const router = express.Router();
-const problemController = require('../controllers/problemController');
-const authenticate = require('../middleware/authMiddleware');
-const { body } = require('express-validator');
+const Problem = require('../models/Problem');
+const authMiddleware = require('../middleware/authMiddleware');
 
-// Problem routes
-router.get('/', problemController.getProblems);
-router.get('/:id', problemController.getProblemDetails);
-router.post('/', authenticate, [
-    body('title').notEmpty().withMessage('Title is required'),
-    body('description').notEmpty().withMessage('Description is required'),
-    body('inputFormat').notEmpty().withMessage('Input format is required'),
-    body('outputFormat').notEmpty().withMessage('Output format is required'),
-    body('constraints').notEmpty().withMessage('Constraints are required'),
-    body('sampleInput').notEmpty().withMessage('Sample input is required'),
-    body('sampleOutput').notEmpty().withMessage('Sample output is required'),
-    body('difficulty').isIn(['easy', 'medium', 'hard']).withMessage('Invalid difficulty level'),
-    body('tags').isArray().withMessage('Tags must be an array')
-], problemController.createProblem);
-router.put('/:id', authenticate, [
-    body('title').optional().notEmpty().withMessage('Title cannot be empty'),
-    body('description').optional().notEmpty().withMessage('Description cannot be empty'),
-    body('inputFormat').optional().notEmpty().withMessage('Input format cannot be empty'),
-    body('outputFormat').optional().notEmpty().withMessage('Output format cannot be empty'),
-    body('constraints').optional().notEmpty().withMessage('Constraints cannot be empty'),
-    body('sampleInput').optional().notEmpty().withMessage('Sample input cannot be empty'),
-    body('sampleOutput').optional().notEmpty().withMessage('Sample output cannot be empty'),
-    body('difficulty').optional().isIn(['easy', 'medium', 'hard']).withMessage('Invalid difficulty level'),
-    body('tags').optional().isArray().withMessage('Tags must be an array')
-], problemController.updateProblem);
+// Get all problems (with limited information)
+router.get('/', async (req, res) => {
+  try {
+    const { difficulty, category } = req.query;
+    let query = {};
+    if (difficulty) query.difficulty = difficulty;
+    if (category) query.category = category;
 
+    const problems = await Problem.find(query, 'title difficulty tags category acceptedSubmissions totalSubmissions');
+    res.json(problems);
+  } catch (error) {
+    console.error('Error fetching problems:', error);
+    res.status(500).json({ error: 'An error occurred while fetching problems' });
+  }
+});
 
-// Submission routes
-router.post('/:id/submit', authenticate, [
-    body('code').notEmpty().withMessage('Code is required'),
-    body('language').isIn(['javascript', 'python', 'cpp']).withMessage('Invalid language'),
-    body('input').optional()
-], problemController.submitSolution);
-router.get('/submissions', authenticate, problemController.getSubmissions);
-router.get('/submissions/:submissionId', authenticate, problemController.getSubmissionDetails);
+// Get a specific problem
+router.get('/:id', async (req, res) => {
+  try {
+    const problem = await Problem.findById(req.params.id);
+    if (!problem) {
+      return res.status(404).json({ error: 'Problem not found' });
+    }
+    
+    // Exclude actual test cases from the response
+    const { title, description, inputFormat, outputFormat, constraints, sampleInput, sampleOutput, difficulty, tags, category, acceptedSubmissions, totalSubmissions } = problem;
+    res.json({ title, description, inputFormat, outputFormat, constraints, sampleInput, sampleOutput, difficulty, tags, category, acceptedSubmissions, totalSubmissions });
+  } catch (error) {
+    console.error('Error fetching problem:', error);
+    res.status(500).json({ error: 'An error occurred while fetching the problem' });
+  }
+});
+
+// Create a new problem (protected route)
+router.post('/', authMiddleware, async (req, res) => {
+  try {
+    const newProblem = new Problem(req.body);
+    await newProblem.save();
+    res.status(201).json(newProblem);
+  } catch (error) {
+    console.error('Error creating problem:', error);
+    res.status(400).json({ error: 'An error occurred while creating the problem' });
+  }
+});
+
+// Update a problem (protected route)
+router.put('/:id', authMiddleware, async (req, res) => {
+  try {
+    const updatedProblem = await Problem.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updatedProblem) {
+      return res.status(404).json({ error: 'Problem not found' });
+    }
+    res.json(updatedProblem);
+  } catch (error) {
+    console.error('Error updating problem:', error);
+    res.status(400).json({ error: 'An error occurred while updating the problem' });
+  }
+});
+
+// Delete a problem (protected route)
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    const deletedProblem = await Problem.findByIdAndDelete(req.params.id);
+    if (!deletedProblem) {
+      return res.status(404).json({ error: 'Problem not found' });
+    }
+    res.json({ message: 'Problem deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting problem:', error);
+    res.status(500).json({ error: 'An error occurred while deleting the problem' });
+  }
+});
 
 module.exports = router;

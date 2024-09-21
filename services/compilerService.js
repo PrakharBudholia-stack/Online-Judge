@@ -43,69 +43,71 @@ const checkEnvironment = async () => {
   }
 };
 
-// const compileAndRun = async (code, language, input, testCases) => {
-//   console.log(`Starting compilation and execution for ${language}`);
-//   console.log(`Python command being used: ${pythonCommand}`);
+const compileAndRun = async (code, language, problem) => {
+  console.log(`Starting compilation and execution for ${language}`);
+  console.log(`Python command being used: ${pythonCommand}`);
 
-//   const tempDir = path.join(__dirname, '../temp');
-//   await fs.mkdir(tempDir, { recursive: true });
+  const tempDir = path.join(__dirname, '../temp');
+  await fs.mkdir(tempDir, { recursive: true });
 
-//   const fileName = `temp_${Date.now()}`;
-//   const filePath = path.join(tempDir, fileName);
+  const fileName = `temp_${Date.now()}`;
+  const filePath = path.join(tempDir, fileName);
 
-//   try {
-//     await fs.writeFile(`${filePath}.py`, code);
-//     console.log(`Code written to file: ${filePath}.py`);
-//     console.log(`File contents:\n${code}`);
+  try {
+    await fs.writeFile(`${filePath}.py`, code);
+    console.log(`Code written to file: ${filePath}.py`);
 
-//     if (!testCases || testCases.length === 0) {
-//       console.log('Executing command:', pythonCommand, [`${filePath}.py`]);
-//       const result = await runCommand(pythonCommand, [`${filePath}.py`], input, 30000);
-//       return {
-//         output: result.stdout.trim(),
-//         error: result.stderr.trim(),
-//         executionTime: result.executionTime
-//       };
-//     } else {
-//       const results = [];
-//       for (let i = 0; i < testCases.length; i++) {
-//         const testCase = testCases[i];
-//         console.log(`Executing test case ${i + 1}:`, pythonCommand, [`${filePath}.py`]);
-//         try {
-//           const result = await runCommand(pythonCommand, [`${filePath}.py`], testCase.input, 30000);
-//           results.push({
-//             testCase: i + 1,
-//             input: testCase.input,
-//             expectedOutput: testCase.output,
-//             actualOutput: result.stdout.trim(),
-//             error: result.stderr.trim(),
-//             executionTime: result.executionTime,
-//             passed: result.stdout.trim() === testCase.output.trim()
-//           });
-//         } catch (error) {
-//           console.error(`Error in test case ${i + 1}:`, error);
-//           results.push({
-//             testCase: i + 1,
-//             input: testCase.input,
-//             expectedOutput: testCase.output,
-//             actualOutput: '',
-//             error: error.message,
-//             executionTime: 0,
-//             passed: false
-//           });
-//         }
-//       }
-//       return results;
-//     }
-//   } catch (error) {
-//     console.error('Execution error:', error);
-//     throw new Error(`Execution failed for ${language}: ${error.message}`);
-//   } finally {
-//     await cleanUp(tempDir, fileName);
-//   }
-// };
-// Around line 120, replace the entire runCommand function with:
-const runCommand = (command, args, input = '', timeout = 30000) => {
+    const results = [];
+    let passedCount = 0;
+    for (let i = 0; i < problem.testCases.length; i++) {
+      const testCase = problem.testCases[i];
+      console.log(`Executing test case ${i + 1}:`, pythonCommand, [`${filePath}.py`]);
+      try {
+        const result = await runCommand(pythonCommand, [`${filePath}.py`], testCase.input, 5000); // 5 seconds timeout
+        const passed = result.stdout.trim() === testCase.expectedOutput.trim();
+        if (passed) passedCount++;
+        results.push({
+          testCase: i + 1,
+          passed: passed,
+          input: testCase.input,
+          expectedOutput: testCase.expectedOutput,
+          actualOutput: result.stdout.trim(),
+          error: result.stderr.trim(),
+          executionTime: result.executionTime
+        });
+      } catch (error) {
+        console.error(`Error in test case ${i + 1}:`, error);
+        results.push({
+          testCase: i + 1,
+          passed: false,
+          input: testCase.input,
+          expectedOutput: testCase.expectedOutput,
+          actualOutput: '',
+          error: error.message,
+          executionTime: 0
+        });
+      }
+    }
+
+    const allPassed = passedCount === problem.testCases.length;
+    const verdict = allPassed ? 'Accepted' : 'Wrong Answer';
+
+    return {
+      verdict: verdict,
+      passedTestCases: passedCount,
+      totalTestCases: problem.testCases.length,
+      results: results
+    };
+  } catch (error) {
+    console.error('Execution error:', error);
+    throw new Error(`Execution failed for ${language}: ${error.message}`);
+  } finally {
+    await cleanUp(tempDir, fileName);
+  }
+};
+
+
+const runCommand = (command, args, input = '', timeout = 5000) => {
   return new Promise((resolve, reject) => {
     console.log(`Running command: ${command} ${args.join(' ')}`);
     console.log(`Input: ${input}`);
@@ -164,7 +166,7 @@ const runCommand = (command, args, input = '', timeout = 30000) => {
     });
   });
 };
-// Around line 160, replace the entire cleanUp function with:
+
 async function cleanUp(tempDir, fileName) {
   try {
     const files = await fs.readdir(tempDir);

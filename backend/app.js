@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+const helmet = require('helmet');
+const morgan = require('morgan');
 
 // Load environment variables based on NODE_ENV
 const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
@@ -14,9 +16,16 @@ const config = process.env.NODE_ENV === 'production'
   ? require('./config.prod')
   : require('./config.dev');
 
+// Enhanced security with helmet
+app.use(helmet());
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Logging middleware
+app.use(morgan('dev'));
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -34,7 +43,7 @@ app.use('/api/test', testRoute);
 
 // Basic route
 app.get('/', (req, res) => {
-  res.send('Welcome to the Online Compiler API');
+  res.json({ message: 'Welcome to the Online Compiler API' });
 });
 
 // Log routes after they've been set up
@@ -52,16 +61,19 @@ app._router && app._router.stack.forEach(function(r){
   }
 });
 
-// Request logging middleware
-app.use((req, res, next) => {
-  console.log(`Received ${req.method} request for ${req.url}`);
-  next();
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    message: 'Something went wrong!',
+    error: process.env.NODE_ENV === 'production' ? {} : err
+  });
 });
 
 // 404 handler
-app.use((req, res, next) => {
+app.use((req, res) => {
   console.log('404 Not Found:', req.method, req.originalUrl);
-  res.status(404).send('Route not found');
+  res.status(404).json({ message: 'Route not found' });
 });
 
 module.exports = { app, config };

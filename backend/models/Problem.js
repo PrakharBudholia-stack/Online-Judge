@@ -25,7 +25,7 @@ const problemSchema = new mongoose.Schema({
   testCases: [{
     input: String,
     expectedOutput: String
-}],
+  }],
   sampleInput: {
     type: String,
     required: true
@@ -41,6 +41,19 @@ const problemSchema = new mongoose.Schema({
   },
   tags: {
     type: [String]
+  },
+  category: {
+    type: String,
+    required: true,
+    enum: ['arrays', 'strings', 'linked-lists', 'trees', 'graphs', 'dynamic-programming', 'math', 'other']
+  },
+  acceptedSubmissions: {
+    type: Number,
+    default: 0
+  },
+  totalSubmissions: {
+    type: Number,
+    default: 0
   }
 });
 

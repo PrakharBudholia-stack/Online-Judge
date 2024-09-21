@@ -3,9 +3,10 @@ const router = express.Router();
 const compileController = require('../controllers/compileController');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// Check if `compileController.compileCode` is correctly imported
-if (typeof compileController.compileCode !== 'function') {
-  throw new Error('compileController.compileCode is not properly defined');
+// Check if `compileController.compileAndRun` is correctly imported
+console.log(compileController);
+if (typeof compileController.compileAndRun !== 'function') {
+  throw new Error('compileController.compileAndRun is not properly defined');
 }
 
 // Route to handle code compilation requests
@@ -20,10 +21,10 @@ router.post('/', authMiddleware, async (req, res) => {
     console.log('Received compile request:', { language, codeLength: code.length, input });
     console.log(`Compiling ${language} code...`);
     
-    const result = await compileController.compileCode(req, res);
+    const result = await compileController.compileAndRun(req, res);
     
     if (!result) {
-      console.log('Warning: Empty result from compileCode');
+      console.log('Warning: Empty result from compileAndRun');
       return res.status(500).json({ error: 'Execution produced no output' });
     }
     
