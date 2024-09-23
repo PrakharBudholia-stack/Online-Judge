@@ -1,6 +1,0 @@
-{
-    "terminal.explorerKind": "integrated",
-    "terminal.integrated.accessibleViewFocusOnCommandExecution": true,
-    "terminal.integrated.accessibleViewPreserveCursorPosition": true,
-   // "terminal.integrated.automationProfile.windows": {"path": "C:\\Program Files\\Git\\bin\\bash.exe"}
-}
