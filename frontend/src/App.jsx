@@ -6,6 +6,7 @@ import Register from './components/Register.jsx';
 import QuestionList from './components/QuestionList.jsx';
 import QuestionDetail from './components/QuestionDetail.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
+import AddQuestion from './components/AddQuestion.jsx';
 
 function App() {
   useEffect(() => {
@@ -23,6 +24,7 @@ function App() {
             <Route exact path="/register" component={Register} />
             <ProtectedRoute exact path="/questions/:id" component={QuestionDetail} />
             <ProtectedRoute exact path="/questions" component={QuestionList} />
+            <ProtectedRoute exact path="/add-question" component={AddQuestion} />
             <Redirect exact from="/" to="/questions" />
             <Route path="*" render={() => <div>404 Not Found</div>} />
           </Switch>

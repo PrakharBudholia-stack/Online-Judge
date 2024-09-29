@@ -3,7 +3,7 @@
 body {
     margin: 0;
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(to right, #6a11cb, #2575fc);
+    background: linear-gradient(to right, #b3b3b3, #e6e6e6);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -65,13 +65,13 @@ body {
     background-color: #45a049;
   }
   
-  .register-link {
+  .register-button {
     color: white;
     text-decoration: none;
     font-size: 1rem;
     transition: color 0.3s ease;
   }
   
-  .register-link:hover {
+  .register-button:hover {
     color: #ffcc00;
   }

@@ -82,6 +82,9 @@ function QuestionList() {
   return (
     <div className="question-list-container">
       <h1 className="heading">Questions</h1>
+      <Link to="/add-question">
+          <button className="add-question-button">Add Question</button>
+        </Link>
       <input
         type="text"
         placeholder="Search questions..."
