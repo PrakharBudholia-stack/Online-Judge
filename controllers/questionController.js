@@ -1,14 +1,24 @@
 // controllers/questionController.js
 const Question = require('../models/Question');
+const HiddenTestCases = require('../models/HiddenTestCases');
 
 exports.addQuestion = async (req, res) => {
-  const { description, testCases } = req.body;
-  console.log('Add Question request received:', { description, testCases });
+  const { title, description, difficulty, sampleTestCases, hiddenTestCases } = req.body;
+  console.log('Add Question request received:', req.body);
   try {
-    const question = new Question({ description, testCases });
-    await question.save();
-    console.log('Question saved to database:', question);
-    res.status(201).send('Question added');
+    const newHiddenTestCases = new HiddenTestCases({ testCases: hiddenTestCases });
+    await newHiddenTestCases.save();
+
+    const newQuestion = new Question({
+      title,
+      description,
+      difficulty,
+      sampleTestCases,
+      hiddenTestCasesId: newHiddenTestCases._id,
+    });
+    await newQuestion.save();
+    console.log('Question added to database:', newQuestion);
+    res.status(201).json(newQuestion);
   } catch (error) {
     console.error('Error adding question:', error.message);
     res.status(400).send(error.message);
@@ -31,7 +41,7 @@ exports.getQuestionById = async (req, res) => {
   const { id } = req.params;
   console.log('Get Question By ID request received:', id);
   try {
-    const question = await Question.findById(id);
+    const question = await Question.findById(id).populate('hiddenTestCasesId');
     if (!question) {
       console.log('Question not found:', id);
       return res.status(404).send('Question not found');
@@ -53,8 +63,9 @@ exports.deleteQuestion = async (req, res) => {
       console.log('Question not found:', id);
       return res.status(404).send('Question not found');
     }
-    console.log('Question deleted from database:', question);
-    res.send('Question deleted');
+    await HiddenTestCases.findByIdAndDelete(question.hiddenTestCasesId);
+    console.log('Question and associated hidden test cases deleted from database:', question);
+    res.json({ message: 'Question deleted successfully' });
   } catch (error) {
     console.error('Error deleting question:', error.message);
     res.status(500).send(error.message);

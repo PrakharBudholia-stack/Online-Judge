@@ -1,0 +1,145 @@
+/* QuestionList.css */
+
+body {
+  background-color: #f0f2f5;
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.question-list-container {
+  padding: 2rem;
+  background-color: #f0f2f5;
+  min-height: 100vh;
+}
+
+.heading {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #333;
+  font-size: 2.5rem;
+}
+
+.search-input {
+  display: block;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto 2rem auto;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.sort-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.sort-controls label {
+  margin: 0 1rem;
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.legend-item {
+  margin: 0 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+}
+
+.legend-item.easy {
+  background-color: #28a745;
+}
+
+.legend-item.medium {
+  background-color: #ffc107;
+}
+
+.legend-item.hard {
+  background-color: #dc3545;
+}
+
+.questions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.question-box {
+  width: 100%;
+  max-width: 600px;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  transition: transform 0.2s;
+}
+
+.question-box:hover {
+  transform: translateY(-5px);
+}
+
+.question-box a {
+  text-decoration: none;
+  color: inherit;
+  font-weight: bold;
+}
+
+.question-box.easy {
+  background-color: #d4edda;
+  border-left: 5px solid #28a745;
+}
+
+.question-box.medium {
+  background-color: #fff3cd;
+  border-left: 5px solid #ffc107;
+}
+
+.question-box.hard {
+  background-color: #f8d7da;
+  border-left: 5px solid #dc3545;
+}
+
+.question-box.easy a {
+  color: #155724;
+}
+
+.question-box.medium a {
+  color: #856404;
+}
+
+.question-box.hard a {
+  color: #721c24;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.page-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  margin: 0 0.25rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.page-button:hover {
+  background-color: #0056b3;
+}
+
+.page-button.active {
+  background-color: #0056b3;
+}

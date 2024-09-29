@@ -13,13 +13,13 @@ exports.compileCode = async (req, res) => {
   console.log('Compile request received:', { questionId, userId, language });
 
   try {
-    const question = await Question.findById(questionId);
+    const question = await Question.findById(questionId).populate('hiddenTestCasesId');
     if (!question) {
       console.log('Question not found:', questionId);
       return res.status(404).send('Question not found');
     }
 
-    const testCases = question.testCases;
+    const testCases = [...question.sampleTestCases, ...question.hiddenTestCasesId.testCases];
     const results = [];
     let allPassed = true;
 
@@ -42,7 +42,7 @@ exports.compileCode = async (req, res) => {
     let testCasesFailed = 0;
 
     for (const testCase of testCases) {
-      const { input, output: expectedOutput } = testCase;
+      const { input, expectedOutput } = testCase;
       console.log('Running test case:', { input, expectedOutput });
       const actualOutput = await executeCode(language, filePath, input);
       const passed = actualOutput.trim() === expectedOutput;
@@ -67,6 +67,7 @@ exports.compileCode = async (req, res) => {
     const finalResult = allPassed ? 'Accepted' : 'Rejected';
     console.log('All test cases executed. Final result:', finalResult);
     res.json({ results, finalResult, testCasesPassed, testCasesFailed });
+    return { testCasesPassed, testCasesFailed, testCases };
   } catch (error) {
     console.error('Error during code compilation:', error.message);
     res.status(500).send(error.message);
@@ -169,24 +170,21 @@ const getExecuteCommand = (language, filePath) => {
 };
 
 exports.submitSolution = async (req, res) => {
-  const { userId, questionId, code } = req.body;
+  const { userId, questionId, code, status } = req.body;
 
   try {
-    // Assume getTestCases is a function that retrieves test cases for the question
-    const testCases = await getTestCases(questionId); // Assume this function exists
-
-    const { testCasesPassed, testCasesFailed } = await compileCode(code, testCases);
-
+    // Create a new submission with the code, status, and createdAt
     const submission = new Submission({
       userId,
       questionId,
       code,
-      testCasesPassed,
-      testCasesFailed
+      status,
+      createdAt: new Date() // Explicitly set the createdAt field
     });
 
     await submission.save();
 
+    // Return the submission and status
     res.status(201).json({ message: 'Submission successful', submission });
   } catch (error) {
     console.error('Error submitting solution:', error);

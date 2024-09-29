@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "start:backend": "npm start",
+    "start:frontend": "npm run dev --prefix frontend",
+    "start:all": "concurrently \"npm run start:backend\" \"npm run start:frontend\""
   },
   "author": "",
   "license": "ISC",
@@ -16,5 +19,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.6.3",
     "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
   }
 }

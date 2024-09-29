@@ -1,0 +1,68 @@
+/* QuestionDetail.css */
+
+.question-detail-container {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+}
+
+.question-container {
+  width: 30%;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #f9f9f9; /* Light background color for question section */
+  border-right: 1px solid #ccc; /* Separation line */
+}
+
+.separator {
+  width: 1px;
+  background-color: #ccc;
+}
+
+.code-editor-container {
+  width: 70%;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.code-editor-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.language-selector {
+  margin-bottom: 10px;
+}
+
+.language-selector label {
+  margin-right: 10px;
+}
+
+.difficulty {
+  font-weight: bold;
+}
+
+.difficulty.easy {
+  color: green;
+}
+
+.difficulty.medium {
+  color: orange;
+}
+
+.difficulty.hard {
+  color: red;
+}
+
+.test-cases {
+  margin-top: 20px;
+}
+
+.test-case-box {
+  background-color: #e0f7fa; /* Light blue background for test cases */
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #b2ebf2;
+}

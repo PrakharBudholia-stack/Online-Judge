@@ -1,0 +1,32 @@
+/* RecentSubmissions.css */
+
+.recent-submissions-container {
+    margin-top: 20px;
+  }
+  
+  .error {
+    color: red;
+    margin-top: 10px;
+  }
+  
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .submission {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .submission.passed {
+    background-color: #d4edda; /* Light green background for passed submissions */
+    border-color: #c3e6cb;
+  }
+  
+  .submission.failed {
+    background-color: #f8d7da; /* Light red background for failed submissions */
+    border-color: #f5c6cb;
+  }

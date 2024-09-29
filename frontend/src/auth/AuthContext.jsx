@@ -14,7 +14,7 @@ const AuthProvider = ({ children }) => {
       const accessToken = localStorage.getItem('accessToken');
       if (accessToken) {
         try {
-          axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+          axiosInstance.defaults.headers.common['Authorization'] = `${accessToken}`;
           const response = await axiosInstance.get('/api/auth/me');
           setUser(response.data);
         } catch (error) {

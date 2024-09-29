@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '../auth/axiosInstance';
 import { useHistory } from 'react-router-dom';
+import './Register.css'; // Ensure you have a CSS file for styling
 
 function Register() {
   const [email, setEmail] = useState('');
@@ -9,7 +10,7 @@ function Register() {
 
   const handleSubmit = async () => {
     try {
-      await axios.post('/api/auth/register', { email, password });
+      await axiosInstance.post('/api/auth/register', { email, password });
       history.push('/login');
     } catch (error) {
       console.error('Error registering:', error);
@@ -17,12 +18,27 @@ function Register() {
   };
 
   return (
-    <div>
-      <h1>Register</h1>
-      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-      <button onClick={handleSubmit}>Register</button>
-      <p>Already have an account? <a href="/login">Login</a></p>
+    <div className="register-container">
+      <h1 className="heading">CodeZoro</h1>
+      <div className="register-box">
+        <h1 className="register-title">Register</h1>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          required
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          required
+        />
+        <button onClick={handleSubmit} className="register-button">Register</button>
+        <p>Already have an account? <a href="/login" className="login-link">Login</a></p>
+      </div>
     </div>
   );
 }

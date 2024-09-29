@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
 
 const submissionSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  userId: { type: String},
   questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Question', required: true },
   code: { type: String, required: true },
-  testCasesPassed: { type: Number, required: true },
-  testCasesFailed: { type: Number, required: true },
+  status: {type: String},
   createdAt: { type: Date, default: Date.now }
 });
 

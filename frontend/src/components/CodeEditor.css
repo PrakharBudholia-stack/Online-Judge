@@ -1,0 +1,94 @@
+/* CodeEditor.css */
+
+.code-editor-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Full page width */
+    height: 100vh;
+  }
+  
+  .language-selector {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .language-selector label {
+    margin-right: 10px;
+    font-weight: bold;
+    font-size: 16px;
+  }
+  
+  .language-selector select {
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+  }
+  
+  .button-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .run-tests-button, .submit-button {
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+  }
+  
+  .run-tests-button {
+    background-color: #007bff;
+    color: white;
+    width: 100px; /* Adjusted button width */
+  }
+  
+  .run-tests-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .submit-button {
+    background-color: #28a745;
+    color: white;
+    width: 100px; /* Adjusted button width */
+  }
+  
+  .submit-button:hover {
+    background-color: #218838;
+  }
+  
+  .error {
+    color: red;
+    margin-top: 10px;
+  }
+  
+  .results {
+    margin-top: 10px;
+  }
+  
+  .status {
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .result-box {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .result-box.passed {
+    background-color: #d4edda; /* Light green background for passed test cases */
+    border-color: #c3e6cb;
+  }
+  
+  .result-box.failed {
+    background-color: #f8d7da; /* Light red background for failed test cases */
+    border-color: #f5c6cb;
+  }

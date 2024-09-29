@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { AuthContext } from '../auth/AuthContext';
+import './Login.css';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -18,26 +19,35 @@ function Login() {
     }
   };
 
+  const handleRegister = () => {
+    history.push('/register');
+  };
+
   return (
-    <div>
-      <h1>Login</h1>
-      {error && <div style={{ color: 'red' }}>{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-        />
-        <button type="submit">Login</button>
-      </form>
-      <p>Don't have an account? <a href="/register">Register</a></p>
+    <div className="login-container">
+      <h1 className="heading">CodeZoro</h1>
+      <div className="login-box">
+        <h1 className="login-title">Login</h1>
+        {error && <div className="error-message">{error}</div>}
+        <form onSubmit={handleSubmit}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit">Login</button>
+        </form>
+        <a href="/register" className="register-link">Register</a>
+      </div>
     </div>
   );
 }
