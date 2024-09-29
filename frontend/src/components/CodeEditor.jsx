@@ -7,6 +7,7 @@ function CodeEditor({ questionId, initialLanguage }) {
   const [code, setCode] = useState('');
   const [results, setResults] = useState([]);
   const [error, setError] = useState(null);
+  const [stackTrace, setStackTrace] = useState(null);
   const [language, setLanguage] = useState(initialLanguage); // Initialize language state
   const [loading, setLoading] = useState(false); // Loading state for running tests
   const [status, setStatus] = useState(''); // Status message
@@ -83,9 +84,11 @@ function CodeEditor({ questionId, initialLanguage }) {
       setResults(response.data.results);
       setStatus(response.data.status); // Set status message
       setError(null);
+      setStackTrace(null); // Clear stack trace on success
     } catch (error) {
       console.error('Error compiling code:', error);
-      setError('Code compilation failed');
+      setError(error.response ? error.response.data.error : 'Code compilation failed');
+      setStackTrace(error.response ? error.response.data.stack : null);
     } finally {
       setLoading(false); // Set loading to false when test execution is complete
     }
@@ -128,6 +131,7 @@ function CodeEditor({ questionId, initialLanguage }) {
         <button className="submit-button" onClick={handleSubmit}>Submit</button>
       </div>
       {error && <div className="error">{error}</div>}
+      {stackTrace && <pre className="stack-trace">{stackTrace}</pre>} {/* Display stack trace */}
       <h3>Results {results.length > 0 && `(${results.filter(result => result.passed).length}/${results.length} Passed)`}</h3>
       {!loading && results.length > 0 && (
         <div className="results">

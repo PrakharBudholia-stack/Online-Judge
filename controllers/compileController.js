@@ -33,145 +33,77 @@ exports.compileCode = async (req, res) => {
     const userDir = path.join(__dirname, 'temp', uniqueId);
     fs.mkdirSync(userDir, { recursive: true });
 
-    const fileName = `temp.${getFileExtension(language)}`;
+    const fileName = `Solution.${getFileExtension(language)}`;
     const filePath = path.join(userDir, fileName);
-
-    console.log(`Writing code to file: ${filePath}`);
     fs.writeFileSync(filePath, code);
-
-    const compileCommand = getCompileCommand(language, filePath);
-    if (compileCommand) {
-      await executeCommand(compileCommand);
-    }
-
-    let testCasesPassed = 0;
-    let testCasesFailed = 0;
 
     for (const testCase of testCases) {
       const { input, expectedOutput } = testCase;
-      console.log('Running test case:', { input, expectedOutput });
-      const actualOutput = await executeCode(language, filePath, input);
-      const passed = actualOutput.trim() === expectedOutput;
-      if (!passed) {
+      try {
+        const actualOutput = await runCode(filePath, language, input);
+        const passed = customInput ? true : actualOutput.trim() === expectedOutput.trim();
+        results.push({ input, expectedOutput, actualOutput, passed });
+        if (!passed) allPassed = false;
+      } catch (error) {
+        results.push({ input, expectedOutput, actualOutput: error.message, passed: false });
         allPassed = false;
-        testCasesFailed++;
-      }else{
-        testCasesPassed++;
       }
-      console.log('Test case result:', { input, expectedOutput, actualOutput, passed });
-      results.push({
-        input,
-        expectedOutput,
-        actualOutput,
-        passed
-      });
     }
 
-    fs.rmdirSync(userDir, { recursive: true });
-    console.log(`Temporary directory deleted: ${userDir}`);
+    fs.rmSync(userDir, { recursive: true, force: true });
 
-    const finalResult = allPassed ? 'Accepted' : 'Rejected';
-    console.log('All test cases executed. Final result:', finalResult);
-    res.json({ results, finalResult, testCasesPassed, testCasesFailed });
-    return { testCasesPassed, testCasesFailed, testCases };
+    res.status(200).json({ results, status: allPassed ? 'All tests passed' : 'Some tests failed' });
   } catch (error) {
-    console.error('Error during code compilation:', error.message);
-    res.status(500).send(error.message);
+    console.error('Error during code compilation:', error);
+    res.status(500).json({ error: error.message, stack: error.stack });
   }
 };
 
-const executeCommand = (command) => {
+const runCode = (filePath, language, input) => {
   return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        console.error('Error during command execution:', error.message);
-        return reject(error);
-      }
-      if (stderr) {
-        console.error('Stderr during command execution:', stderr);
-        return reject(stderr);
-      }
-      resolve(stdout);
-    });
-  });
-};
-
-const executeCode = (language, filePath, input) => {
-  return new Promise((resolve, reject) => {
-    const command = getExecuteCommand(language, filePath);
-    console.log('Running command:', command);
-
-    const cmd = spawn(command, { shell: true });
-
     let stdout = '';
     let stderr = '';
 
-    if (input) {
-      cmd.stdin.write(input);
-      cmd.stdin.end();
-    }
+    const cmd = spawn(getCommand(language, filePath), { shell: true });
 
-    cmd.stdin.on('error', err => {
-      reject({ msg: 'on stdin error', error: `${err}` });
-    });
+    cmd.stdin.write(input);
+    cmd.stdin.end();
 
     cmd.stdout.on('data', (data) => {
-      stdout += `${data}`;
+      stdout += data.toString();
     });
 
     cmd.stderr.on('data', (data) => {
-      stderr += `${data}`;
+      stderr += data.toString();
     });
-
-    cmd.on('error', (error) => reject(error));
 
     cmd.on('close', (code) => {
       if (code !== 0) {
-        reject(`${stderr}`);
+        reject(new Error(stderr));
       } else {
-        resolve(`${stdout}`.trim());
-      }
-
-      if (language === 'cpp') {
-        const outFile = `${filePath}.out`;
-        if (fs.existsSync(outFile)) {
-          fs.unlinkSync(outFile);
-          console.log(`Temporary .out file deleted: ${outFile}`);
-        }
+        resolve(stdout.trim());
       }
     });
   });
 };
 
 const getFileExtension = (language) => {
-  console.log(`Getting file extension for language: ${language}`);
   switch (language) {
-    case 'python': return 'py';
     case 'javascript': return 'js';
+    case 'python': return 'py';
+    case 'java': return 'java';
     case 'cpp': return 'cpp';
-    default: 
-      console.error('Unsupported language:', language);
-      throw new Error('Unsupported language');
+    default: return '';
   }
 };
 
-const getCompileCommand = (language, filePath) => {
-  console.log(`Getting compile command for language: ${language}`);
+const getCommand = (language, filePath) => {
   switch (language) {
-    case 'cpp': return `g++ ${filePath} -o ${filePath}.out`;
-    default: return null;
-  }
-};
-
-const getExecuteCommand = (language, filePath) => {
-  console.log(`Getting execute command for language: ${language}`);
-  switch (language) {
-    case 'python': return `python3 ${filePath}`;
     case 'javascript': return `node ${filePath}`;
-    case 'cpp': return `${filePath}.out`;
-    default: 
-      console.error('Unsupported language:', language);
-      throw new Error('Unsupported language');
+    case 'python': return `python3 ${filePath}`;
+    case 'java': return `javac ${filePath} && java ${filePath.replace('.java', '')}`;
+    case 'cpp': return `g++ ${filePath} -o ${filePath}.out && ${filePath}.out`;
+    default: return '';
   }
 };
 
