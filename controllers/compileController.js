@@ -41,7 +41,7 @@ exports.compileCode = async (req, res) => {
       const { input, expectedOutput } = testCase;
       try {
         const actualOutput = await runCode(filePath, language, input);
-        const passed = customInput ? true : actualOutput.trim() === expectedOutput.trim();
+        const passed = customInput ? "NA" : actualOutput.trim() === expectedOutput.trim();
         results.push({ input, expectedOutput, actualOutput, passed });
         if (!passed) allPassed = false;
       } catch (error) {

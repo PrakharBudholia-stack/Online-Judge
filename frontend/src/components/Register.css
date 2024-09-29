@@ -37,9 +37,9 @@ body {
     color: #ff4d4d;
     margin-bottom: 20px;
   }
-  
+  input[type="username"],
   input[type="email"],
-  input[type="password"] {
+  input[type="password"]{
     width: 100%;
     padding: 10px;
     margin: 10px 0;

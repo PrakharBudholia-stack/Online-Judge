@@ -141,7 +141,7 @@ function CodeEditor({ questionId, initialLanguage }) {
               key={index}
               className={`result-box ${result.passed ? 'passed' : 'failed'}`}
             >
-              <strong>Test Case {index + 1}:</strong> {result.passed ? 'Passed' : 'Failed'}
+              <strong>Test Case {index + 1}:</strong> {isCustomInput? '' : result.passed ? 'Passed' : 'Failed'}
               {index < 2 && (
                 <>
                   <br />
