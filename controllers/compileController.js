@@ -7,7 +7,7 @@ const Submission = require('../models/Submission');
 const { compileCode } = require('./compileController');
 
 exports.compileCode = async (req, res) => {
-  const { questionId, code, language } = req.body;
+  const { questionId, code, language, customInput } = req.body;
   const userId = req.user.userId;
 
   console.log('Compile request received:', { questionId, userId, language });
@@ -19,7 +19,13 @@ exports.compileCode = async (req, res) => {
       return res.status(404).send('Question not found');
     }
 
-    const testCases = [...question.sampleTestCases, ...question.hiddenTestCasesId.testCases];
+    let testCases = [];
+    if (customInput) {
+      testCases = [{ input: customInput, expectedOutput: '' }];
+    } else {
+      testCases = [...question.sampleTestCases, ...question.hiddenTestCasesId.testCases];
+    }
+
     const results = [];
     let allPassed = true;
 

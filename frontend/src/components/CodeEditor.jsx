@@ -10,6 +10,8 @@ function CodeEditor({ questionId, initialLanguage }) {
   const [language, setLanguage] = useState(initialLanguage); // Initialize language state
   const [loading, setLoading] = useState(false); // Loading state for running tests
   const [status, setStatus] = useState(''); // Status message
+  const [customInput, setCustomInput] = useState(''); // Custom input state
+  const [isCustomInput, setIsCustomInput] = useState(false); // Flag for custom input
 
   useEffect(() => {
     const fetchBoilerplateCode = () => {
@@ -44,21 +46,6 @@ function CodeEditor({ questionId, initialLanguage }) {
     setLanguage(event.target.value);
   };
 
-  const handleRunTests = async () => {
-    setLoading(true); // Set loading to true when starting the test execution
-    try {
-      const response = await axiosInstance.post('/api/compile', { questionId, code, language });
-      setResults(response.data.results);
-      setStatus(response.data.status); // Set status message
-      setError(null);
-    } catch (error) {
-      console.error('Error compiling code:', error);
-      setError('Code compilation failed');
-    } finally {
-      setLoading(false); // Set loading to false when test execution is complete
-    }
-  };
-
   const handleSubmit = async () => {
     setLoading(true); // Set loading to true when starting the submission
     try {
@@ -84,7 +71,30 @@ function CodeEditor({ questionId, initialLanguage }) {
     }
   };
 
-  const passedCount = results.filter(result => result.passed).length;
+  const handleRunTests = async () => {
+    setLoading(true); // Set loading to true when starting the test execution
+    try {
+      const response = await axiosInstance.post('/api/compile', { 
+        questionId, 
+        code, 
+        language, 
+        customInput: isCustomInput ? customInput : null 
+      });
+      setResults(response.data.results);
+      setStatus(response.data.status); // Set status message
+      setError(null);
+    } catch (error) {
+      console.error('Error compiling code:', error);
+      setError('Code compilation failed');
+    } finally {
+      setLoading(false); // Set loading to false when test execution is complete
+    }
+  };
+
+  const handleCustomInputChange = (event) => {
+    setCustomInput(event.target.value);
+    setIsCustomInput(event.target.value.trim() !== '');
+  };
 
   return (
     <div className="code-editor-container">
@@ -105,12 +115,20 @@ function CodeEditor({ questionId, initialLanguage }) {
         onChange={handleEditorChange}
         theme="vs-dark"
       />
+      <div className="custom-input-container">
+        <textarea
+          placeholder="Enter custom input here..."
+          value={customInput}
+          onChange={handleCustomInputChange}
+          className="custom-input"
+        />
+      </div>
       <div className="button-container">
         <button className="run-tests-button" onClick={handleRunTests}>Run Tests</button>
         <button className="submit-button" onClick={handleSubmit}>Submit</button>
       </div>
       {error && <div className="error">{error}</div>}
-      <h3>Results {results.length > 0 && `(${passedCount}/${results.length} Passed)`}</h3>
+      <h3>Results {results.length > 0 && `(${results.filter(result => result.passed).length}/${results.length} Passed)`}</h3>
       {!loading && results.length > 0 && (
         <div className="results">
           <div className="status">{status}</div> {/* Display status message */}
