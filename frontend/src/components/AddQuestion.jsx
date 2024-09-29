@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import axiosInstance from '../auth/axiosInstance';
-import './AddQuestion.css'; // Ensure you have a CSS file for styling
+import './AddQuestion.css'; // Import the CSS file for styling
 
 function AddQuestion() {
   const [title, setTitle] = useState('');
@@ -8,16 +9,9 @@ function AddQuestion() {
   const [difficulty, setDifficulty] = useState('easy');
   const [sampleTestCases, setSampleTestCases] = useState([{ input: '', expectedOutput: '' }]);
   const [hiddenTestCases, setHiddenTestCases] = useState([{ input: '', expectedOutput: '' }]);
-  const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-
-  const handleAddSampleTestCase = () => {
-    setSampleTestCases([...sampleTestCases, { input: '', expectedOutput: '' }]);
-  };
-
-  const handleAddHiddenTestCase = () => {
-    setHiddenTestCases([...hiddenTestCases, { input: '', expectedOutput: '' }]);
-  };
+  const [error, setError] = useState(null);
+  const history = useHistory();
 
   const handleSampleTestCaseChange = (index, field, value) => {
     const newSampleTestCases = [...sampleTestCases];
@@ -28,6 +22,16 @@ function AddQuestion() {
   const handleHiddenTestCaseChange = (index, field, value) => {
     const newHiddenTestCases = [...hiddenTestCases];
     newHiddenTestCases[index][field] = value;
+    setHiddenTestCases(newHiddenTestCases);
+  };
+
+  const handleDeleteSampleTestCase = (index) => {
+    const newSampleTestCases = sampleTestCases.filter((_, i) => i !== index);
+    setSampleTestCases(newSampleTestCases);
+  };
+
+  const handleDeleteHiddenTestCase = (index) => {
+    const newHiddenTestCases = hiddenTestCases.filter((_, i) => i !== index);
     setHiddenTestCases(newHiddenTestCases);
   };
 
@@ -43,6 +47,7 @@ function AddQuestion() {
       });
       setSuccess('Question added successfully!');
       setError(null);
+      history.push('/questions'); // Navigate back to question list
     } catch (error) {
       setError('Error adding question');
       setSuccess(null);
@@ -66,7 +71,11 @@ function AddQuestion() {
           onChange={(e) => setDescription(e.target.value)}
           required
         />
-        <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} required>
+        <select
+          value={difficulty}
+          onChange={(e) => setDifficulty(e.target.value)}
+          required
+        >
           <option value="easy">Easy</option>
           <option value="medium">Medium</option>
           <option value="hard">Hard</option>
@@ -88,9 +97,10 @@ function AddQuestion() {
               onChange={(e) => handleSampleTestCaseChange(index, 'expectedOutput', e.target.value)}
               required
             />
+            <button type="button" onClick={() => handleDeleteSampleTestCase(index)}>Delete</button>
           </div>
         ))}
-        <button type="button" onClick={handleAddSampleTestCase} className="add-test-case-button">
+        <button type="button" onClick={() => setSampleTestCases([...sampleTestCases, { input: '', expectedOutput: '' }])}>
           Add Sample Test Case
         </button>
         <h2>Hidden Test Cases</h2>
@@ -110,14 +120,15 @@ function AddQuestion() {
               onChange={(e) => handleHiddenTestCaseChange(index, 'expectedOutput', e.target.value)}
               required
             />
+            <button type="button" onClick={() => handleDeleteHiddenTestCase(index)}>Delete</button>
           </div>
         ))}
-        <button type="button" onClick={handleAddHiddenTestCase} className="add-test-case-button">
+        <button type="button" onClick={() => setHiddenTestCases([...hiddenTestCases, { input: '', expectedOutput: '' }])}>
           Add Hidden Test Case
         </button>
-        <button type="submit" className="submit-button">Submit</button>
-        {error && <div className="error-message">{error}</div>}
+        <button type="submit">Submit</button>
         {success && <div className="success-message">{success}</div>}
+        {error && <div className="error-message">{error}</div>}
       </form>
     </div>
   );
