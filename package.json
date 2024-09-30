@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
     "start:backend": "npm start",
-    "start:frontend": "npm run dev --prefix frontend",
+    "start:frontend": "cd frontend && npm run host",
     "start:all": "concurrently \"npm run start:backend\" \"npm run start:frontend\""
   },
   "author": "",
